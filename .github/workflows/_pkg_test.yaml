@@ -1,0 +1,61 @@
+# Install package from a given source and run unit-tests.
+# Install the package and run tests on a matrix of supported Python versions and operating systems.
+
+name: '[Callable]: Package - Test'
+
+on:
+  workflow_call:
+    inputs:
+      config:
+        type: string
+        required: true
+        description: Configuration as a JSON string.
+#      metadata:
+#        type: string
+#        required: true
+#        description: |
+#          CI metadata as a JSON string.
+#      config:
+#        type: string
+#        required: true
+#        description: |
+#          CI configuration as a JSON string.
+#      package-source:
+#        type: string
+#        default: GitHub
+#        required: false
+#        description: Installation source of the package; one of 'GitHub', 'TestPyPI', 'PyPI'.
+
+jobs:
+
+  test:
+    name: '${{ matrix.config.os }} - Py ${{ matrix.config.python-version }}'
+    strategy:
+      fail-fast: false
+      matrix:
+        config: ${{ fromJson(inputs.config) }}
+#        os: ${{ fromJson(inputs.metadata).package.github_runners }}
+#        python-version: ${{ fromJson(inputs.metadata).package.python_versions }}
+    runs-on: ${{ matrix.config.runner }} # ${{ matrix.os }}
+    steps:
+      - uses: repodynamics/pytests@v1
+        with:
+#          config: ${{ inputs.config }}
+#          metadata: ${{ inputs.metadata }}
+#          package-source: ${{ inputs.package-source }}
+#          python-version: ${{ matrix.python-version }}
+#          os: ${{ matrix.os }}
+          repository: ${{ matrix.config.repository }}
+          ref: ${{ matrix.config.ref }}
+          path-tests: ${{ matrix.config.path-tests }}
+          package-source: ${{ matrix.config.package-source }}
+          package-name: ${{ matrix.config.package-name }}
+          package-version: ${{ matrix.config.package-version }}
+          python-version: ${{ matrix.config.python-version }}
+          os: ${{ matrix.config.os }}
+          path-report-pytest: ${{ matrix.config.path-report-pytest }}
+          path-report-coverage: ${{ matrix.config.path-report-coverage }}
+          path-cache-pytest: ${{ matrix.config.path-cache-pytest }}
+          path-cache-coverage: ${{ matrix.config.path-cache-coverage }}
+          max-retries: ${{ matrix.config.max-retries }}
+          retry-delay: ${{ matrix.config.retry-delay }}
